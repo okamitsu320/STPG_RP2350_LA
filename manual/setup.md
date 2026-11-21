@@ -136,7 +136,8 @@ In card 2 open the bundle you built in the Runner: its **folder** is shown in th
 ![Planning a window on the public counter sample](images/plan-simulated.png)
 
 Actual demo plan for vector 50 of the public `gui_counter.stil` sample. No analyzer was armed. With that sample,
-enter `50` in Address and leave the other plan fields at their defaults to reproduce this view.
+enter `50` in Address and leave the other plan fields at their defaults to reproduce this view. The trigger and
+channel table both start at ch0.
 
 ## 6. Use it in a run
 

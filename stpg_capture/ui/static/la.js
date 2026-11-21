@@ -353,6 +353,23 @@ $("planSave").addEventListener("click", (e) => {
   if (path) busyWhile(e.target, async () => { const r = await api("plan/save", { plan_id: S.plan.plan_id, path }); setStatus(`saved ${r.path}`); });
 });
 
+// The saved condition string is historical. Keep it intact; label the
+// structured, zero-based trigger like the wiring and waveform in this UI.
+function triggerConditionText(trigger, channels) {
+  const { type, base_channel: base, count, value } = trigger || {};
+  const limit = type === "pattern" ? 16 : type === "level" && count === 1 ? 25 : 0;
+  if (![base, count, value].every(Number.isInteger) || base < 0 || count < 1 ||
+      base + count > limit || value < 0 || value >= 2 ** count) return "the trigger condition";
+  const labels = new Map((Array.isArray(channels) ? channels : [])
+    .filter((row) => row && Number.isInteger(row.channel) && typeof row.signal === "string")
+    .map((row) => [row.channel, row.signal]));
+  return Array.from({ length: count }, (_, i) => {
+    const channel = base + i;
+    const signal = labels.get(channel);
+    return `ch${channel}${signal ? `(${signal})` : ""}=${(value >> i) & 1}`;
+  }).join(", ");
+}
+
 function renderPlan() {
   const body = $("planBody");
   const planned = !!(S.plan && S.plan.plan.status === "PLANNED");
@@ -366,7 +383,7 @@ function renderPlan() {
     el("div", { class: "badges" }, badge(p.status, planned ? "ok" : "bad"), t.type ? badge(`${t.type} trigger`, "info") : null,
       t.strategy ? badge(`strategy ${t.strategy}`, "muted") : null, badge(`segment ${p.bundle.segment}`, "muted")),
     p.reasons && p.reasons.length ? notice("bad", "Not plannable", p.reasons) : null,
-    planned ? kvList([["trigger", t.condition], ["target", `vector ${p.target.vector} (local ${p.target.local_vector} of segment ${p.bundle.segment})`],
+    planned ? kvList([["trigger", triggerConditionText(t, p.channels)], ["target", `vector ${p.target.vector} (local ${p.target.local_vector} of segment ${p.bundle.segment})`],
       ["window", `vectors ${p.window.first_vector}–${p.window.last_vector}`],
       ["sampling", `${(p.sample_rate_hz / 1e6).toFixed(3)} MHz · ${p.samples.pre} before + ${p.samples.post} after = ${p.samples.total} samples`]]) : null,
     planned ? table(["signal", "analyzer channel"], p.channels.map((c) => [c.signal, `ch${c.channel}`])) : null,
@@ -381,14 +398,16 @@ function renderPlan() {
 $("runWrite").addEventListener("click", (e) => busyWhile(e.target, async () => {
   const mode = $("runMode").value;
   if (!mode) throw new Error("choose the mode explicitly: device or simulated");
-  const r = await api("config", { plan_id: S.plan.plan_id, mode, device_binding: $("runDevice").value.trim() || null,
+  const selected = S.plan;
+  const r = await api("config", { plan_id: selected.plan_id, mode, device_binding: $("runDevice").value.trim() || null,
     directory: $("runFolder").value.trim() || null });
   setChildren($("runBody"), 
     el("div", { class: "badges" }, badge("written", "ok"), badge(r.mode, r.mode === "simulated" ? "warn" : "info"),
       r.checked_by_core_sdk ? badge("core identity check passed", "ok") : badge("core identity check not run", "muted")),
     kvList([["accessory config", copyable(r.config)], ["segment", r.segment],
       ["open limit", `${r.open_timeout_s ?? r.timeout_s} s`], ["arm/complete limit", `${r.timeout_s} s`],
-      ["stdin EOF grace", `${r.close_timeout_s ?? 1} s`], ["trigger", r.trigger]]),
+      ["stdin EOF grace", `${r.close_timeout_s ?? 1} s`],
+      ["trigger", triggerConditionText(selected.plan.trigger, selected.plan.channels)]]),
     notice("info", "Next, in the STPG Runner", [
       "External accessory → Accessory config: this external.json → Check → tick “use with the next run” → Run….",
       "The run's results folder then holds stpg/ (the STPG record), accessory/session.json (the Runner's record of this process) and accessory/capture/ (this tool's capture). Open the run folder in card 7."]),
@@ -485,9 +504,9 @@ function captureResultView(view) {
   const session = (r.analyzer && r.analyzer.session) || {};
   if (r.outcome === "NO_DATA" && session.armed && session.capture_bytes_received === 0) {
     // NO_DATA follows a sent target RUN; with not one byte back, the analyzer never fired (not a transfer stall)
-    const trig = view.plan_summary && view.plan_summary.trigger;
+    const { trigger: trig, channels } = view.plan_summary || {};
     box.append(notice("warn", "Trigger never seen", [
-      `The analyzer was armed before the target RUN and the RUN was sent, but it did not see ${trig ? trig.condition : "the trigger condition"} and sent no samples.`,
+      `The analyzer was armed before the target RUN and the RUN was sent, but it did not see ${triggerConditionText(trig, channels)} and sent no samples.`,
       ...(trig && trig.type === "pattern" ? ['This is a pattern trigger: the analyzer firmware signals it from its GPIO0 to its GPIO1, so it fires only when GPIO0 and GPIO1 of the analyzer Pico are connected. A plan made with Strategy "level trigger" does not use them, so it tells this cause apart from the wiring below.'] : []),
       "Also check the wires from the STPG GPIOs to the analyzer channels listed in the plan, the common ground, and that the STPG section shows the run completed."]));
   }

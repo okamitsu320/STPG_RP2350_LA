@@ -275,7 +275,7 @@ def build_request(info: AnalyzerInfo, *, channels: list[int], frequency: int, pr
         value = 0
     elif trigger_type == TRIGGER_COMPLEX:
         if not (1 <= trigger_count <= 16 and 0 <= trigger_channel <= 15 and trigger_channel + trigger_count <= 16):
-            raise ProtocolError("pattern trigger must use 1..16 contiguous channels within channels 1..16")
+            raise ProtocolError("pattern trigger must use 1..16 contiguous channels within ch0..ch15")
         if not 0 <= trigger_value < (1 << trigger_count):
             raise ProtocolError("pattern trigger value has bits outside the trigger channels")
         count_field = trigger_count

@@ -55,8 +55,9 @@ Otherwise the reasons are shown, and any drawing is diagnostic only.
 Levels at compare strobes are analyzer observations, not STPG compare results. Nothing here is a verdict on the device,
 an electrical validation or a calibration.
 
-The result tables, plan, wiring and waveform use the same labels, from ch0.
-Saved alignment records keep their one-based channel numbers for compatibility.
+The result tables, trigger summaries, wiring and waveform use the same labels, from ch0.
+Saved alignment records keep their one-based channel numbers, and existing plan files keep their
+historical condition text for compatibility. The page uses the plan's structured fields to show the trigger.
 
 ## Limits
 

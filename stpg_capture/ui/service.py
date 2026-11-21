@@ -358,7 +358,8 @@ class LaService:
                     pass
                 break
         return {"capture_id": capture_id, "directory": str(folder), "result": short, "run": run,
-                "plan_summary": {"trigger": plan.get("trigger"), "window": plan.get("window"),
+                "plan_summary": {"trigger": plan.get("trigger"), "channels": plan.get("channels"),
+                                 "window": plan.get("window"),
                                  "sample_rate_hz": plan.get("sample_rate_hz"), "requested": plan.get("requested"),
                                  "segment": (plan.get("bundle") or {}).get("segment")},
                 "waveform": bool(result.get("samples") and result.get("alignment"))}

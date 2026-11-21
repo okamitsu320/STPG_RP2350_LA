@@ -52,12 +52,9 @@ def manual_shot(driver, name: str, selector: str) -> None:
         time.sleep(0.2)  # let the actual waveform canvas resize
         target = driver.find_element(By.CSS_SELECTOR, selector)
         driver.execute_script("arguments[0].scrollIntoView({block:'center'})", target)
-        hidden = driver.execute_script("return [...arguments[0].querySelectorAll('.path'),...document.querySelectorAll('header')].map(e=>{"
-                                       "const old=e.style.visibility; e.style.visibility='hidden'; return [e,old];})", target)
         try:
             target.screenshot(str(path / name))
         finally:
-            driver.execute_script("for(const [e,old] of arguments[0])e.style.visibility=old", hidden)
             driver.set_window_size(size["width"], size["height"])
 
 
@@ -141,6 +138,7 @@ def test_a_capture_from_nothing_with_both_programs(browser, tmp_path):  # noqa: 
         driver.find_element(By.ID, "planForm").find_element(By.NAME, "address").send_keys("50")
         driver.find_element(By.ID, "planRun").click()
         until(lambda: "PLANNED" in text("planBody"), "the plan")
+        assert "ch0(A0)=" in text("planBody") and "ch1(A0)=" not in text("planBody")
         manual_shot(driver, "plan-simulated.png", "#cardPlan")
         Select(driver.find_element(By.ID, "runMode")).select_by_value("simulated")
         config = tmp_path / "accessory" / "external.json"
@@ -148,6 +146,7 @@ def test_a_capture_from_nothing_with_both_programs(browser, tmp_path):  # noqa: 
         driver.find_element(By.ID, "runWrite").click()
         until(lambda: "external.json" in text("runBody"), "the config")
         assert config.is_file()
+        assert "ch0(A0)=" in text("runBody") and "ch1(A0)=" not in text("runBody")
 
         # step 7: Check, tick, Run in the Runner
         driver.switch_to.window(runner)
@@ -180,7 +179,9 @@ def test_a_capture_from_nothing_with_both_programs(browser, tmp_path):  # noqa: 
         until(lambda: "Overall" in text("rpRunBody"), "the result", 120)
         assert "COMPLETED" in text("rpRunBody") and "external accessory" in text("rpRunBody").lower()
         run = next(tmp_path.rglob("accessory/session.json")).parent.parent
-        assert read_json(run / "accessory" / "capture" / "capture.json")["mode"] == "simulated"
+        capture = read_json(run / "accessory" / "capture" / "capture.json")
+        assert capture["mode"] == "simulated"
+        assert "ch1(A0)=" in capture["plan"]["trigger"]["condition"]  # historical saved field
         assert read_json(run / "accessory" / "result.json")["mode"] == "simulated"
 
         # step 8: open the run's folder on the analyzer's page

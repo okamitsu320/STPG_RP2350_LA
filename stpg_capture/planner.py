@@ -16,7 +16,7 @@ against the whole expected pin timeline from the start of the invocation:
   The post-capture alignment detects an early trigger instead of trusting it.
 
 Strategies: ``pattern`` (firmware complex trigger: 1..16 contiguous channels
-within channels 1..16), ``level`` (firmware "edge" trigger, which is a level
+within ch0..ch15), ``level`` (firmware "edge" trigger, which is a level
 condition on one channel) and ``marker`` (level trigger on a marker signal that
 exists only in a derived pattern). Nothing here talks to a device.
 """

@@ -12,7 +12,7 @@ No firmware or device operation is authorized by these installation instructions
 
 Captures the real waveform around a chosen vector of an STPG run, with an RP2350 (Pico 2) logic analyzer running the
 gusmanb/logicanalyzer V6 firmware. It is a separate program from the STPG software, which starts it as its own process
-for one run. It never runs the STPG itself. Licence: GPL v3 (`LICENSE`, `NOTICE.md`).
+for one run. It never runs the STPG itself. [GPL-3.0-only](LICENSE) · [Third-party notices](NOTICE.md).
 
 ## Try the simulated analyzer
 
@@ -37,6 +37,10 @@ python3 -m venv stpg-env
 ```
 
 See the [source-install walkthrough](manual/setup.md) to open the core alongside the analyzer and try a mock capture.
+
+![Simulated analyzer result showing ch0 to ch7 and the not-a-measurement warning](manual/images/capture-simulated.png)
+
+This capture uses synthesized levels from the public counter example. It is not a measurement.
 
 `stpg-la` and `stpg-capture` are also installed as console commands; they need the environment's Scripts/bin folder
 on PATH. The module command above does not. Demo output is not a measurement.

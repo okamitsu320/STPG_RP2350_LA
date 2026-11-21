@@ -72,6 +72,10 @@ MUTANTS = [
     ("LA-13", "the strobe table displays the saved one-based channel", "ui/static/la.js",
      "analyzerChannelLabel(s.channel)", "s.channel",
      "tests/test_la_page_render.py::test_result_tables_label_saved_channels_from_zero[strobe_observations]"),
+    ("LA-14", "the trigger-missed notice uses the saved one-based condition", "ui/static/la.js",
+     "did not see ${triggerConditionText(trig, channels)} and sent",
+     'did not see ${trig ? trig.condition : "the trigger condition"} and sent',
+     "tests/test_la_page_render.py::test_no_byte_after_the_target_run_says_the_trigger_was_never_seen"),
 ]
 
 

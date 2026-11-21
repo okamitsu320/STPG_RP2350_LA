@@ -10,8 +10,10 @@ import stpg_capture.ui as ui_package
 
 pytestmark = pytest.mark.stpg_host_only
 
-PATTERN ={"type": "pattern", "condition": "ch1(A0)=0, ch7(A6)=1"}
-LEVEL = {"type": "level", "condition": "ch7(A6)=1"}
+PATTERN = {"type": "pattern", "base_channel": 0, "count": 2, "value": 2,
+           "condition": "ch1(A0)=0, ch2(A1)=1"}
+LEVEL = {"type": "level", "base_channel": 6, "count": 1, "value": 1, "condition": "ch7(A6)=1"}
+CHANNELS = [{"channel": 0, "signal": "A0"}, {"channel": 1, "signal": "A1"}, {"channel": 6, "signal": "A6"}]
 WIRE = "gpio0 and gpio1 of the analyzer pico are connected"
 
 
@@ -22,6 +24,9 @@ def render(view):
     source = (Path(ui_package.__file__).parent / "static" / "la.js").read_text(encoding="utf-8")
     start = source.index("function captureResultView(")
     body = source[start:source.index("async function showCapture(", start)]
+    if "function triggerConditionText(" in source:
+        start = source.index("function triggerConditionText(")
+        body = source[start:source.index("function renderPlan(", start)] + body
     script = """
 const input = JSON.parse(require('fs').readFileSync(0, 'utf8'));
 class Dom {
@@ -46,13 +51,16 @@ def _view(outcome, received, trigger, *, armed=True):
     result = {"outcome": outcome, "alignment_status": "NOT_ATTEMPTED", "mode": "device",
               "timing": {"adopted": False, "reasons": []}, "errors": ["no complete capture within the bounded wait"],
               "analyzer": {"session": {"armed": armed, "capture_bytes_received": received}}}
-    return {"result": result, "directory": "capture", "plan_summary": {"trigger": trigger} if trigger else None}
+    return {"result": result, "directory": "capture",
+            "plan_summary": {"trigger": trigger, "channels": CHANNELS} if trigger else None}
 
 
-@pytest.mark.parametrize("trigger,wire", [(PATTERN, True), (LEVEL, False)])
-def test_no_byte_after_the_target_run_says_the_trigger_was_never_seen(trigger, wire):
+@pytest.mark.parametrize("trigger,wire,shown", [
+    (PATTERN, True, "ch0(A0)=0, ch1(A1)=1"), (LEVEL, False, "ch6(A6)=1")])
+def test_no_byte_after_the_target_run_says_the_trigger_was_never_seen(trigger, wire, shown):
     text = render(_view("NO_DATA", 0, trigger))
-    assert "trigger never seen" in text and f"did not see {trigger['condition'].lower()} and sent no samples" in text
+    assert "trigger never seen" in text and f"did not see {shown.lower()} and sent no samples" in text
+    assert trigger["condition"].lower() not in text
     assert "common ground" in text
     assert (WIRE in text) == wire
 
@@ -60,6 +68,11 @@ def test_no_byte_after_the_target_run_says_the_trigger_was_never_seen(trigger, w
 def test_without_a_plan_summary_the_condition_is_named_generically():
     text = render(_view("NO_DATA", 0, None))
     assert "did not see the trigger condition" in text and WIRE not in text
+
+
+def test_a_legacy_summary_without_structured_channel_fields_does_not_guess():
+    text = render(_view("NO_DATA", 0, {"type": "level", "condition": "ch1(A0)=1"}))
+    assert "did not see the trigger condition" in text and "ch1(a0)" not in text
 
 
 @pytest.mark.parametrize("outcome,received,armed", [
