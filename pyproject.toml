@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "stpg-rp2350-la"
+version = "0.1.0.dev7"
+description = "Logic-analyzer accessory for the RP2350 STPG tools: a separate program and process (GPL v3)"
+readme = "README.md"
+# GPL v3 as the upstream LICENSE text at the consulted revision; no "or later" grant is asserted (owner decision).
+license = "GPL-3.0-only"
+license-files = ["LICENSE", "NOTICE.md"]
+requires-python = ">=3.10"
+dependencies = [
+    "stpg-rp2350==0.1.0.dev7",  # installed MIT core; no source-checkout dependency
+    "pyserial==3.5",
+]
+
+[project.urls]
+Repository = "https://github.com/okamitsu320/STPG_RP2350_LA"
+Core = "https://github.com/okamitsu320/STPG_RP2350"
+
+[project.scripts]
+stpg-capture = "stpg_capture.cli:main"
+stpg-la = "stpg_capture.ui.server:main"
+
+[tool.setuptools.packages.find]
+include = ["stpg_capture", "stpg_capture.*"]
+
+[tool.setuptools.package-data]
+"stpg_capture.ui" = ["static/*"]
+
+[tool.pytest.ini_options]
+markers = [
+    "stpg_host_only: test uses host-side code and does not perform physical device I/O",
+]

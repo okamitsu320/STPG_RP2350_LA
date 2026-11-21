@@ -1,0 +1,6 @@
+include LICENSE NOTICE.md README.md
+include .gitignore .gitattributes
+recursive-include manual *.md *.png
+recursive-include release *.json
+recursive-include tests *.py
+recursive-include stpg_capture/ui/static *

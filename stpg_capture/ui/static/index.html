@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>STPG logic analyzer</title>
+<link rel="stylesheet" href="/static/la.css">
+</head>
+<body>
+<header class="top">
+  <h1>STPG logic analyzer <small>separate tool · GPL v3</small></h1>
+  <p id="banner" class="banner"></p>
+  <p id="status" class="status" role="status" aria-live="polite"></p>
+</header>
+<main>
+  <section class="card" id="cardGuide">
+    <details id="laGuide" open>
+      <summary><strong>Getting started</strong></summary>
+      <p class="muted small">This tool sets up the analyzer and reads its captures. It never runs the STPG: a capture happens during a
+        run started in the STPG Runner (<code>stpg-view</code>), which starts this tool's accessory process for that run.
+        The Runner's <strong>Analyzers…</strong> list only shows what you save here.</p>
+      <ol class="small" id="laSteps">
+        <li><strong>Register the analyzer</strong> (card 1, Add binding…): press Scan ports and Use on the analyzer's own row
+          (nothing is selected for you), choose the firmware limits of the analyzer firmware you installed, choose the
+          wiring, and Save.</li>
+        <li><strong>Check it</strong>: press Identify. It opens only that port, asks for its identity and closes it. If the
+          analyzer reports other limits, review them and Save them yourself; nothing is changed until you do.</li>
+        <li><strong>Wire it</strong> as the binding's Wiring table shows, with a common ground.</li>
+        <li><strong>Plan</strong> (cards 2 and 3): open the bundle (the same one as in the Runner) and plan a capture around
+          a vector.</li>
+        <li><strong>Write the run config</strong> (card 4): this makes a new folder with <code>external.json</code>.</li>
+        <li><strong>Run in the STPG Runner</strong>: in its External accessory card choose that <code>external.json</code>,
+          press Check, tick “use with the next run” and press Run….</li>
+        <li><strong>See the capture</strong> (card 7): open the run's folder to see the capture, its alignment and the
+          waveform.</li>
+      </ol>
+      <p class="muted small">Without an analyzer, card 5 makes a mock capture from a plan or imports a <code>.lac</code> or CSV file.</p>
+    </details>
+  </section>
+
+  <section class="card" id="cardBindings">
+    <h2>1. Analyzer bindings</h2>
+    <div id="settingsFolder"></div>
+    <p class="muted small">The STPG Runner lists these bindings read-only (USB identity only) as the target of Reset LA… and to keep the
+      analyzer apart from the STPG and the GPIO controller.</p>
+    <div id="bindingsBody"></div>
+  </section>
+
+  <section class="card" id="cardBundle">
+    <h2>2. Bundle</h2>
+    <div class="grid">
+      <label>Bundle folder <small class="muted">(holds runner.bundle.json; the Runner shows it as the bundle's folder)</small> <span class="row"><input name="bundle" id="bundlePath" spellcheck="false"><button class="btn small" type="button" data-browse="bundlePath" data-dir="1">Browse…</button></span></label>
+      <label>Manifest SHA-256 <small class="muted">(optional; default: the hash of runner.bundle.json)</small><input name="manifest" id="bundleSha" spellcheck="false"></label>
+    </div>
+    <div class="actions"><button class="btn primary" type="button" id="bundleOpen">Open</button></div>
+    <div id="bundleBody"></div>
+  </section>
+
+  <section class="card" id="cardPlan">
+    <h2>3. Capture plan</h2>
+    <form id="planForm" class="grid" autocomplete="off">
+      <label>Analyzer <select name="analyzer" id="planAnalyzer"></select></label>
+      <label>Address <span class="row"><select name="address_kind"><option value="vector">vector ID (expanded, 0-based)</option><option value="line">STIL line</option></select><input name="address" type="number" min="0" required></span></label>
+      <label>Occurrence <small class="muted">(line inside Loops/Macros, 0-based; optional)</small><input name="occurrence" type="number" min="0"></label>
+      <label>Vectors before <input name="before" type="number" min="0" value="16"></label>
+      <label>Vectors after <input name="after" type="number" min="0" value="64"></label>
+      <label>Strategy <select name="strategy"><option value="auto">auto</option><option value="pattern">pattern trigger (needs GPIO0–GPIO1 on the analyzer)</option><option value="level">level trigger</option><option value="marker">marker</option></select></label>
+      <label>Signals <small class="muted">(comma-separated; default: every wired signal)</small><input name="signals" spellcheck="false"></label>
+      <label>Sample rate Hz <small class="muted">(optional)</small><input name="sample_rate" type="number" min="1"></label>
+      <label>Pre-trigger limit <select name="pretrigger"><option value="driver">driver (10 %)</option><option value="firmware">firmware</option></select></label>
+    </form>
+    <div class="actions">
+      <button class="btn primary" type="button" id="planRun">Plan</button>
+      <button class="btn" type="button" id="planLoad">Load plan file…</button>
+      <button class="btn" type="button" id="planSave" disabled>Save plan…</button>
+    </div>
+    <div id="planBody"></div>
+  </section>
+
+  <section class="card" id="cardRun">
+    <h2>4. Use in an STPG run</h2>
+    <p class="muted small">Writes a new folder with <code>external.json</code> (the program to start, the binding and the plan, with their
+      SHA-256). In the STPG Runner, choose that file in the <strong>External accessory</strong> card, press Check and tick
+      “use with the next run”. The Runner then starts this tool's accessory process for that run only: it arms the analyzer
+      right before the target segment's RUN and keeps the capture in the run's <code>accessory/capture/</code> folder.</p>
+    <div class="grid">
+      <label>Mode <select id="runMode"><option value="">choose…</option><option value="device">device (the bound analyzer)</option><option value="simulated">simulated (analyzer model; with the Runner's demo STPG)</option></select></label>
+      <label>STPG device binding <small class="muted">(optional: also run the core's identity check)</small><span class="row"><input id="runDevice" spellcheck="false"><button class="btn small" type="button" data-browse="runDevice">Browse…</button></span></label>
+      <label>New folder <small class="muted">(optional; default under the results folder)</small><span class="row"><input id="runFolder" spellcheck="false"><button class="btn small" type="button" data-browse="runFolder" data-new="1" data-dir="1">Browse…</button></span></label>
+    </div>
+    <div class="actions"><button class="btn primary" type="button" id="runWrite" disabled>Write accessory config</button></div>
+    <div id="runBody"></div>
+  </section>
+
+  <section class="card" id="cardOffline">
+    <h2>5. Offline captures</h2>
+    <div class="grid">
+      <label>Mock trigger offset ps <input id="mockOffset" type="number" value="0"></label>
+      <label>Trace file (.lac or CLCapture .csv) <span class="row"><input id="importPath" spellcheck="false"><button class="btn small" type="button" data-browse="importPath">Browse…</button></span></label>
+      <label>CSV sample rate Hz <input id="importRate" type="number" min="1"></label>
+      <label>CSV trigger index <input id="importTrigger" type="number" min="0"></label>
+      <label>CSV channels <small class="muted">(analyzer channel numbers 1..24 of the columns)</small><input id="importChannels" spellcheck="false"></label>
+    </div>
+    <div class="actions">
+      <button class="btn" type="button" id="mockRun" disabled>Mock capture (expected levels)</button>
+      <button class="btn" type="button" id="importRun" disabled>Import and align</button>
+    </div>
+  </section>
+
+  <section class="card" id="cardMarker">
+    <h2>6. Marker pattern <small class="muted">(a derived project that drives one spare pin high at the target vector)</small></h2>
+    <div class="grid">
+      <label>Source project file <span class="row"><input id="markerProject" spellcheck="false"><button class="btn small" type="button" data-browse="markerProject">Browse…</button></span></label>
+      <label>Target vector <input id="markerVector" type="number" min="0"></label>
+      <label>Marker GPIO <select id="markerGpio"></select></label>
+      <label class="check"><input type="checkbox" id="markerSpare"> This pin is spare on my bench (only the analyzer input on it) and safe for the STPG to drive.</label>
+      <label>New project folder <small class="muted">(optional)</small><span class="row"><input id="markerFolder" spellcheck="false"><button class="btn small" type="button" data-browse="markerFolder" data-new="1" data-dir="1">Browse…</button></span></label>
+    </div>
+    <div class="actions"><button class="btn" type="button" id="markerRun" disabled>Derive, build and verify</button></div>
+    <div id="markerBody"></div>
+  </section>
+
+  <section class="card" id="cardResult">
+    <h2>7. Capture results</h2>
+    <div class="grid">
+      <label>Run folder, its accessory/ folder or a capture folder <span class="row"><input id="capturePath" spellcheck="false"><button class="btn small" type="button" data-browse="capturePath" data-dir="1">Browse…</button></span></label>
+    </div>
+    <div class="actions"><button class="btn" type="button" id="captureOpen">Open</button><button class="btn" type="button" id="resultsRefresh">Recent results here</button></div>
+    <div id="resultsList"></div>
+    <div id="captureBody"></div>
+  </section>
+</main>
+
+<dialog id="pickDialog">
+  <form method="dialog">
+    <h3 id="pickTitle">Choose</h3>
+    <p class="muted small" id="pickHint"></p>
+    <div class="row"><input id="pickPath" spellcheck="false" aria-label="Path"><button class="btn small" type="button" id="pickGo" title="Open the folder typed in the box">Go</button><button class="btn small" type="button" id="pickUp">Up</button><button class="btn small" type="button" id="pickHome">Home</button></div>
+    <div class="row wrap" id="pickRoots"></div>
+    <p class="muted small">In <span id="pickHere" class="path"></span></p>
+    <ul id="pickList" class="pick"></ul>
+    <label id="pickNewRow" hidden>Name of the new folder <input id="pickNewName" spellcheck="false"></label>
+    <p id="pickError" class="status bad" hidden></p>
+    <div class="actions"><button class="btn" value="cancel">Cancel</button><button class="btn primary" id="pickOk" value="ok">Use this path</button></div>
+  </form>
+</dialog>
+<script src="/static/la.js"></script>
+</body>
+</html>
