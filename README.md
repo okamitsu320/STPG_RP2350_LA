@@ -11,8 +11,15 @@ SDK, bundle or Python environment; do not manually replace their hashes.
 No firmware or device operation is authorized by these installation instructions.
 
 Captures the real waveform around a chosen vector of an STPG run, with an RP2350 (Pico 2) logic analyzer running the
-gusmanb/logicanalyzer V6 firmware. It is a separate program from the STPG software, which starts it as its own process
+[gusmanb/logicanalyzer](https://github.com/gusmanb/logicanalyzer) V6 firmware. It is a separate program from the STPG software, which starts it as its own process
 for one run. It never runs the STPG itself. [GPL-3.0-only](LICENSE) · [Third-party notices](NOTICE.md).
+
+This accessory stands on the analyzer work published by the
+[gusmanb/logicanalyzer](https://github.com/gusmanb/logicanalyzer) project: the wire protocol, the host-side capture
+conventions and the analyzer firmware that the hardware runs are derived from that project, which is why this
+repository is GPL-3.0-only while the STPG core stays MIT. See [NOTICE.md](NOTICE.md) for the file-level provenance
+and the pinned upstream revision. The analyzer firmware itself is not bundled here; obtain and install it from the
+upstream project onto your own board.
 
 ## Try the simulated analyzer
 
