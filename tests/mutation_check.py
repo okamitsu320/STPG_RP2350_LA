@@ -66,6 +66,12 @@ MUTANTS = [
      "        entries = []\n",
      "            folder = Path.home()\n        entries = []\n",
      "tests/test_la_path_picker.py::test_a_listing_names_home_and_roots_and_never_opens_another_folder_instead"),
+    ("LA-12", "the level agreement table displays the saved one-based channel", "ui/static/la.js",
+     "analyzerChannelLabel(l.channel)", "l.channel",
+     "tests/test_la_page_render.py::test_result_tables_label_saved_channels_from_zero[levels]"),
+    ("LA-13", "the strobe table displays the saved one-based channel", "ui/static/la.js",
+     "analyzerChannelLabel(s.channel)", "s.channel",
+     "tests/test_la_page_render.py::test_result_tables_label_saved_channels_from_zero[strobe_observations]"),
 ]
 
 

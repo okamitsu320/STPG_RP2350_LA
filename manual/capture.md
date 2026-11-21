@@ -12,7 +12,7 @@ analyzer is armed.
 
 - Sample rate: the maximum frequency divided by an integer. Before and after samples must fit the analyzer's buffer.
 - **auto** tries marker, then pattern, then level.
-- **pattern** uses up to 16 contiguous channels (ch1–16), treats undriven intervals as "anything" and counts every
+- **pattern** uses up to 16 contiguous channels within ch0–ch15, treats undriven intervals as "anything" and counts every
   intermediate state of simultaneous changes as possible.
 - **level** is one channel's level.
 - **marker** uses a derived pattern (below).
@@ -54,6 +54,9 @@ Otherwise the reasons are shown, and any drawing is diagnostic only.
 
 Levels at compare strobes are analyzer observations, not STPG compare results. Nothing here is a verdict on the device,
 an electrical validation or a calibration.
+
+The result tables, plan, wiring and waveform use the same labels, from ch0.
+Saved alignment records keep their one-based channel numbers for compatibility.
 
 ## Limits
 

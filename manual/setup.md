@@ -14,6 +14,7 @@ No analyzer yet? Use the demo commands below and card 5 for a mock capture. No p
 
 The runnable source example assumes these two source folders beside each other. Extract/rename them to these names,
 then open a terminal in `STPG_RP2350` (the core folder, not this tool's folder). Python 3.10 or later is required.
+macOS is untested and not actively supported. The shell examples are provided for anyone who wants to try it.
 
 ```text
 your-work-folder/

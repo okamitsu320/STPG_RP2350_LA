@@ -73,8 +73,10 @@ def test_every_test_named_in_the_catalogue_exists():
             assert f"def {test}(" in (Path(__file__).parent / current).read_text(encoding="utf-8"), item
 
 
-def test_source_install_and_demo_commands_do_not_need_scripts_on_path():
-    setup = (MANUAL / "setup.md").read_text(encoding="utf-8")
+@pytest.mark.parametrize("page", [ROOT / "README.md", MANUAL / "setup.md"])
+def test_source_install_and_demo_commands_do_not_need_scripts_on_path(page):
+    setup = page.read_text(encoding="utf-8")
+    assert "macOS is untested" in setup
     windows = "\n".join(re.findall(r"```powershell\n(.*?)```", setup, re.S))
     posix = "\n".join(re.findall(r"```sh\n(.*?)```", setup, re.S))
     for commands, python in [(windows, ".\\stpg-env\\Scripts\\python.exe"),

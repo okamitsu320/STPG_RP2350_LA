@@ -1,4 +1,4 @@
-"""captureResultView's "Trigger never seen" notice, rendered from this tool's production la.js in Node (no browser)."""
+"""Capture results rendered from the production la.js in Node (no browser)."""
 import json
 from pathlib import Path
 import shutil
@@ -71,3 +71,21 @@ def test_without_a_plan_summary_the_condition_is_named_generically():
 def test_other_endings_do_not_claim_the_trigger_was_never_seen(outcome, received, armed):
     text = render(_view(outcome, received, PATTERN, armed=armed))
     assert "trigger never seen" not in text and WIRE not in text
+
+
+@pytest.mark.parametrize("section", ["levels", "strobe_observations"])
+def test_result_tables_label_saved_channels_from_zero(section):
+    view = _view("CAPTURED", 256, None)
+    rows = [{"signal": "first_pin", "channel": 1}, {"signal": "last_pin", "channel": 24},
+            {"signal": "invalid_pin", "channel": 0}]
+    if section == "levels":
+        for row in rows:
+            row.update(agree=4, total=4)
+    else:
+        for row in rows:
+            row.update(H_seen_high=2, H_total=2, L_seen_low=2, L_total=2)
+    view["result"]["alignment"] = {"status": "ALIGNED", section: rows}
+    text = render(view)
+    assert "first_pin ch0 " in text and "last_pin ch23 " in text
+    assert "invalid_pin — " in text
+    assert "signal analyzer channel" in text

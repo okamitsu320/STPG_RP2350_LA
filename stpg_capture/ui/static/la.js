@@ -445,6 +445,9 @@ function captureResultView(view) {
   const outcomeKind = { CAPTURED: "info", MOCK: "warn", IMPORTED: "info", NO_DATA: "bad", NO_RUN: "bad", HOST_STOPPED: "warn", ANALYZER_ERROR: "bad", REJECT: "bad", CANCELLED: "warn", CLEANUP_ERROR: "bad", PERSIST_ERROR: "bad", PENDING: "bad" }[r.outcome] || "muted";
   const timing = r.timing || { adopted: false, reasons: ["no adoption record"] };
   const al = r.alignment || {};
+  // Saved alignment rows are one-based. Plans, wiring and waveforms use zero-based channel labels.
+  const analyzerChannelLabel = (channel) => Number.isInteger(channel) && channel >= 1 && channel <= 24
+    ? `ch${channel - 1}` : "—";
   const alignKind = { ALIGNED: al.confidence === "low" ? "warn" : "ok", UNALIGNED: "bad", NOT_ALIGNABLE: "warn" }[r.alignment_status] || "muted";
   box.append(el("div", { class: "badges" }, el("strong", {}, "Capture"), badge(r.outcome, outcomeKind), badge(`alignment: ${r.alignment_status}${al.confidence ? ` (${al.confidence})` : ""}`, alignKind),
     timing.adopted ? badge("timing adopted", "ok") : badge("timing not adopted", "bad"),
@@ -468,9 +471,13 @@ function captureResultView(view) {
       ["edges", al.edges ? `${al.edges.matched_expected ?? 0} of ${al.edges.expected_in_capture} expected tester transitions matched` : "—"],
     ]));
     if (al.notes && al.notes.length) box.append(notice(al.status === "ALIGNED" ? "" : "bad", null, al.notes));
-    if (al.levels && al.levels.length) box.append(table(["signal", "LA ch", "level agreement (tester-driven)"], al.levels.map((l) => [l.signal, l.channel, l.total ? `${l.agree}/${l.total} (${(100 * l.agree / l.total).toFixed(1)} %)` : "—"])));
+    if (al.levels && al.levels.length) {
+      box.append(table(["signal", "analyzer channel", "level agreement (tester-driven)"],
+        al.levels.map((l) => [l.signal, analyzerChannelLabel(l.channel), l.total ? `${l.agree}/${l.total} (${(100 * l.agree / l.total).toFixed(1)} %)` : "—"])));
+    }
     if (al.strobe_observations && al.strobe_observations.length) {
-      box.append(table(["signal", "LA ch", "H strobes seen high", "L strobes seen low"], al.strobe_observations.map((s) => [s.signal, s.channel, `${s.H_seen_high}/${s.H_total}`, `${s.L_seen_low}/${s.L_total}`])));
+      box.append(table(["signal", "analyzer channel", "H strobes seen high", "L strobes seen low"],
+        al.strobe_observations.map((s) => [s.signal, analyzerChannelLabel(s.channel), `${s.H_seen_high}/${s.H_total}`, `${s.L_seen_low}/${s.L_total}`])));
       box.append(el("p", { class: "muted small" }, al.strobe_note || ""));
     }
   }

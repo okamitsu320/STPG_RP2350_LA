@@ -39,8 +39,8 @@ folder on purpose, so this tool must really be installed in that interpreter's e
 
 ## Run
 
-First build both local wheels and name them for the installed-wheel tests. These filenames are for this candidate's
-version, not placeholders. From the LA source folder, Windows PowerShell:
+First build both local wheels and name them for the installed-wheel tests. These filenames are for this version,
+not placeholders. From the LA source folder, Windows PowerShell:
 
 ```powershell
 .\stpg-test-env\Scripts\python.exe -m build --wheel --outdir packages ../STPG_RP2350

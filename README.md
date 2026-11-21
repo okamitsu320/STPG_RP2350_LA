@@ -14,15 +14,29 @@ Captures the real waveform around a chosen vector of an STPG run, with an RP2350
 gusmanb/logicanalyzer V6 firmware. It is a separate program from the STPG software, which starts it as its own process
 for one run. It never runs the STPG itself. Licence: GPL v3 (`LICENSE`, `NOTICE.md`).
 
-To check the page without hardware, use the [source-install walkthrough](manual/setup.md).
-It gives copyable Windows PowerShell and Linux/macOS commands, with no PATH or activation requirement.
-The core and this tool are installed from two matching local source folders in one command.
+## Try the simulated analyzer
 
-After that installation, from the core folder on Windows:
+Place matching local source folders `STPG_RP2350` and `STPG_RP2350_LA` beside each other and open a terminal
+in `STPG_RP2350`. Both packages install from the local folders. If the core guide already created `stpg-env`,
+skip the first line.
+
+Windows PowerShell:
 
 ```powershell
+python -m venv stpg-env
+.\stpg-env\Scripts\python.exe -m pip install . ../STPG_RP2350_LA
 .\stpg-env\Scripts\python.exe -m stpg_capture.ui.server --demo --no-device-io --config-dir ./settings-check --results-dir ./la-runs-check
 ```
+
+Linux (also the command form for macOS; macOS is untested and not actively supported):
+
+```sh
+python3 -m venv stpg-env
+./stpg-env/bin/python -m pip install . ../STPG_RP2350_LA
+./stpg-env/bin/python -m stpg_capture.ui.server --demo --no-device-io --config-dir ./settings-check --results-dir ./la-runs-check
+```
+
+See the [source-install walkthrough](manual/setup.md) to open the core alongside the analyzer and try a mock capture.
 
 `stpg-la` and `stpg-capture` are also installed as console commands; they need the environment's Scripts/bin folder
 on PATH. The module command above does not. Demo output is not a measurement.
