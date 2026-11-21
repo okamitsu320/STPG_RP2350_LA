@@ -1,5 +1,6 @@
-include LICENSE NOTICE.md README.md
+include LICENSE NOTICE.md README.md SECURITY.md
 include .gitignore .gitattributes
+include .github/ISSUE_TEMPLATE/bug.yml .github/ISSUE_TEMPLATE/config.yml
 recursive-include manual *.md *.png
 recursive-include release *.json
 recursive-include tests *.py

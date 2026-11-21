@@ -1,0 +1,30 @@
+name: Companion bug report
+description: Report an STPG_RP2350_LA problem using public or synthetic data.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This form is for the STPG companion. Do not send companion bugs to the LogicAnalyzer project.
+        Do not attach private patterns, captures, run folders, device identifiers, tokens or unreviewed logs.
+        For suspected vulnerabilities, follow [the private reporting instructions](https://github.com/okamitsu320/STPG_RP2350_LA/security/policy).
+  - type: input
+    id: environment
+    attributes:
+      label: Software and environment
+      description: Companion and core versions or commits, OS, Python version, and simulated or physical analyzer. Do not include the device serial number.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps, expected outcome, and actual outcome
+      description: Use a public or synthetic example. If the original cannot be shared, describe the steps without attaching it.
+    validations:
+      required: true
+  - type: checkboxes
+    id: information
+    attributes:
+      label: Check before posting
+      options:
+        - label: Any examples are public or synthetic, and I have removed confidential data and device identifiers.
+          required: true

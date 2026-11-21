@@ -6,8 +6,7 @@ Third-party portions retain their respective upstream copyrights and notices.
 `stpg-rp2350-la` (Python package `stpg_capture`) is the logic-analyzer accessory of the RP2350 STPG tools. It is
 distributed under the GNU General Public License version 3 (`LICENSE`, the unmodified text that the upstream
 project ships). No "or later" grant is asserted: the upstream repository at the consulted revision ships the GPL v3
-text and states no later-version permission, and the choice is the owner's. Not legal advice; the final licence
-review of this distribution is an open release gate.
+text and states no later-version permission.
 
 It is a separate distribution and a separate program. The MIT-licensed STPG core (`stpg-rp2350`: compiler, SDK,
 CLI, Viewer, Runner GUI) does not contain or import it. The core starts this program as a child process only when
@@ -16,14 +15,20 @@ stdin/stdout and files in the run's `accessory/` folder). This package imports t
 
 ## Upstream reference
 
-- Project: gusmanb/logicanalyzer (the Pico/Pico 2 logic analyzer firmware, driver and applications).
-- Consulted revision: `4e88df784e4879c1f180456a72d71910dd15faf1`.
+- Project: [LogicAnalyzer](https://github.com/gusmanb/logicanalyzer) by
+  [Agustín Gimenez Bernad (gusmanb)](https://github.com/gusmanb) and its contributors.
+- Consulted revision:
+  [`4e88df784e4879c1f180456a72d71910dd15faf1`](https://github.com/gusmanb/logicanalyzer/commit/4e88df784e4879c1f180456a72d71910dd15faf1).
 - Licence at that revision: GNU GPL v3 (`LICENSE`, SHA-256
   `3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986`).
 
-Nothing was copied byte for byte from upstream files; the code is Python written after reading them. That is not a
-clean-room implementation, and parts are direct translations (marked **T** below). Licensing this package under the
-GPL is what makes those parts consistent with upstream; it is not a statement that they are independent.
+**Modified for STPG_RP2350_LA — standalone source dated 2026-11-21.** Selected upstream host-driver routines
+were translated and adapted to Python for this companion (marked **T** below). The changes include Python request
+validation, trigger-offset calculation and capture buffer limits. This is not a clean-room implementation. The
+modified companion is distributed under GPL-3.0-only with its source and this notice.
+
+The firmware running on the analyzer board is the original upstream firmware. This repository does not modify or
+distribute it.
 
 ## Provenance by file and element
 

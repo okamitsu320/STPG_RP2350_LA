@@ -30,6 +30,18 @@ def test_every_page_is_reachable_and_links_resolve():
             assert link.startswith("https://") or (page.parent / link.split("#")[0]).is_file(), (page.name, link)
 
 
+def test_attribution_firmware_and_support_have_distinct_destinations():
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    notices = (ROOT / "NOTICE.md").read_text(encoding="utf-8")
+    assert "Agustín Gimenez Bernad" in readme and "Agustín Gimenez Bernad" in notices
+    assert "not affiliated with or endorsed by" in readme
+    assert "https://github.com/gusmanb/logicanalyzer/releases/tag/v6.0.0.0" in LINK.findall(readme)
+    assert "https://github.com/okamitsu320/STPG_RP2350_LA/issues/new/choose" in LINK.findall(readme)
+    assert ("https://github.com/gusmanb/logicanalyzer/commit/4e88df784e4879c1f180456a72d71910dd15faf1"
+            in LINK.findall(notices))
+    assert "2026-11-21" in notices
+
+
 @pytest.mark.parametrize("page", [ROOT / "README.md", *PAGES], ids=lambda p: p.name)
 def test_no_internal_material_or_old_commands(page):
     assert INTERNAL.search(page.read_text(encoding="utf-8")) is None

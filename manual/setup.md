@@ -4,8 +4,8 @@
 
 - The STPG software (repository `STPG_RP2350`) installed, so that `python -m stpgview --help` works in its environment,
   and a bundle built with it.
-- A Raspberry Pi Pico 2 with the gusmanb/logicanalyzer **V6** firmware. This tool does not include or install that
-  firmware. It checks the identity the board reports, exactly.
+- A Raspberry Pi Pico 2 with the original [LogicAnalyzer V6 firmware](https://github.com/gusmanb/logicanalyzer/releases/tag/v6.0.0.0).
+  This tool does not include or install that firmware. It checks the identity the board reports, exactly.
 - Wires from the STPG pins to the analyzer, and a common ground.
 
 No analyzer yet? Use the demo commands below and card 5 for a mock capture. No port is opened or listed.
@@ -65,7 +65,7 @@ The console command `stpg-la` is equivalent when the environment is activated.
 ![The simulated analyzer binding, with no real port enumeration](images/analyzer-demo.png)
 
 Actual panel from demo mode. The simulated port and serial here are model identifiers, not attached devices.
-The screenshots in this manual omit local path fields and the page header.
+These screenshots show separate panels; example paths, where visible, are from the simulated walkthrough.
 
 For this first check choose the analyzer `simulated`; use mock capture, never a device capture. Scan ports and
 Identify cannot contact hardware with `--no-device-io`. Once you are ready for a real analyzer, stop the demo and

@@ -5,6 +5,10 @@ Reference: github.com/gusmanb/logicanalyzer, Firmware/LogicAnalyzer_V2
 driver Software/LogicAnalyzer/SharedDriver (LogicAnalyzerDriver.cs,
 AnalyzerDriverBase.cs). Nothing here opens a port.
 
+Modified for STPG_RP2350_LA (standalone source dated 2026-11-21): selected
+host-driver routines from LogicAnalyzer by Agustín Gimenez Bernad and its
+contributors were adapted to Python. GPL-3.0-only; see NOTICE.md for provenance.
+
 Host -> device: binary frames ``55 AA <escaped payload> AA 55``; bytes AA, 55
 and F0 inside the payload are sent as ``F0, byte ^ F0``. Payload byte 0 is the
 command (0 = identify, 1 = capture request + 48-byte CAPTURE_REQUEST).
